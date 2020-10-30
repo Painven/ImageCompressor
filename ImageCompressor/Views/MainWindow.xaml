@@ -1,0 +1,101 @@
+﻿<Window x:Class="ImageCompressor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:v="clr-namespace:ImageCompressor.ViewModels"
+        xmlns:con="clr-namespace:ImageCompressor.Converters"
+        mc:Ignorable="d"
+        Title="Обработчик изображений" Height="358.199" Width="788.795">
+    <Window.Resources>
+        <con:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
+    </Window.Resources>
+    <Window.DataContext>
+        <v:MainWindowViewModel/>
+    </Window.DataContext>
+    <DockPanel>
+        <TextBlock Text="Папка с изображениями которые нужно сжать" Margin="2" DockPanel.Dock="Top"/>
+        <TextBox x:Name="txtFilesFolder" 
+                 Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}"
+                 Margin="2" 
+                 BorderBrush="Black"  
+                 DockPanel.Dock="Top"/>
+        <TextBlock Text="{Binding ElementName=sliderQuality, Path=Value, StringFormat='Качество изображений: {0:N0}%'}" Margin="2"  DockPanel.Dock="Top"/>
+        <Slider x:Name="sliderQuality" Value="{Binding SelectedQuality}" Minimum="25" Maximum="100" Height="20"   DockPanel.Dock="Top"/>
+        <StackPanel Orientation="Horizontal"  DockPanel.Dock="Top">
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="4 2 4 2"/>
+                    <Setter Property="Padding" Value="10,5"/>
+                </Style>
+                <Style TargetType="TextBox">
+                    <Setter Property="Margin" Value="4 2 4 2"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </StackPanel.Resources>
+
+            <Button x:Name="btnSaveAllAsJpg" 
+                    Content="Преобразовать все файлы в папке в .jpg" 
+                    Command="{Binding ConvertImagesCommand}"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button x:Name="btnCompressAll" Grid.ColumnSpan="2"
+                    Command="{Binding CompressImagesCommand}"
+                    Content="Сжать все файлы в папке"  />
+                <Label Grid.Row="1" Grid.Column="0">Мин. размер в кб</Label>
+                <TextBox Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" Grid.Row="1"></TextBox>
+            </Grid>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="btnResizeAll" Grid.Row="0" Grid.ColumnSpan="2" Content="Изменить размер до ш*в" 
+                        Command="{Binding ResizeImagesCommand}"/>
+                <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtResizeWidth" Text="{Binding ResizeWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtResizeHeight" Text="{Binding ResizeHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            </Grid>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" DataContext="{Binding ProgressStatus}">
+            <TextBlock>
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}Обработано {0} из {1} ({2:P0}). Осталось {3}">
+                        <Binding Path="Current" />
+                        <Binding Path="Total" />
+                        <Binding Path="Percent" />
+                        <Binding Path="Left" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            <ProgressBar x:Name="compressProgress" Value="{Binding ProgressStatus.Percent}" Height="24" Margin="2" Maximum="1"/>
+        </StackPanel>
+        <Grid  DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Content="Информация"></Label>
+            <Button Grid.Row="0" Grid.Column="1" Content="Скопировать" Command="{Binding CopyErrorsTextCommand}" DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="2" Padding="4"/>
+            <ListBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="lstBoxErrors" ItemsSource="{Binding Log}" Margin="2"/>
+        </Grid>
+    </DockPanel>
+</Window>
