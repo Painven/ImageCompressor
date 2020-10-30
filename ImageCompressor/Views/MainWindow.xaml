@@ -6,7 +6,7 @@
         xmlns:v="clr-namespace:ImageCompressor.ViewModels"
         xmlns:con="clr-namespace:ImageCompressor.Converters"
         mc:Ignorable="d"
-        Title="Обработчик изображений" Height="360" Width="800">
+        Title="Обработчик изображений" Height="366" Width="604">
     <Window.Resources>
         <con:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
     </Window.Resources>
@@ -16,7 +16,7 @@
     <DockPanel>
         <TextBlock Text="Папка с изображениями которые нужно сжать" Margin="2" DockPanel.Dock="Top"/>
         <TextBox x:Name="txtFilesFolder" 
-                 Text="{Binding WorkingFolder, UpdateSourceTrigger=PropertyChanged}"
+                 Text="{Binding WorkingFolder}"
                  Margin="2" 
                  BorderBrush="Black"  
                  DockPanel.Dock="Top"/>
@@ -47,12 +47,12 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <Button x:Name="btnCompressAll" Grid.ColumnSpan="2"
                     Command="{Binding CompressImagesCommand}"
                     Content="Сжать все файлы в папке"  />
-                <Label Grid.Row="1" Grid.Column="0">Мин. размер в кб</Label>
-                <TextBox Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" Grid.Row="1"></TextBox>
+                <Label Grid.Row="1" Grid.Column="0" FontSize="10">Мин. размер в кб</Label>
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" ></TextBox>
             </Grid>
 
             <Grid>
