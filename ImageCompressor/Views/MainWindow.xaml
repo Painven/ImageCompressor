@@ -6,7 +6,7 @@
         xmlns:v="clr-namespace:ImageCompressor.ViewModels"
         xmlns:con="clr-namespace:ImageCompressor.Converters"
         mc:Ignorable="d"
-        Title="Обработчик изображений" Height="358.199" Width="788.795">
+        Title="Обработчик изображений" Height="360" Width="800">
     <Window.Resources>
         <con:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
     </Window.Resources>
