@@ -6,15 +6,16 @@
         xmlns:v="clr-namespace:ImageCompressor.ViewModels"
         xmlns:con="clr-namespace:ImageCompressor.Converters"
         mc:Ignorable="d"
-        Title="Обработчик изображений" Height="366" Width="604">
+        Title="Обработчик изображений" Height="257" Width="891">
     <Window.Resources>
         <con:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
     </Window.Resources>
     <Window.DataContext>
         <v:MainWindowViewModel/>
     </Window.DataContext>
-    <DockPanel>
-        <TextBlock Text="Папка с изображениями которые нужно сжать" Margin="2" DockPanel.Dock="Top"/>
+    <DockPanel Margin="4">
+        
+        <TextBlock Text="Рабочая папка" Margin="2" DockPanel.Dock="Top"/>
         <TextBox x:Name="txtFilesFolder" 
                  Text="{Binding WorkingFolder}"
                  Margin="2" 
@@ -22,55 +23,62 @@
                  DockPanel.Dock="Top"/>
         <TextBlock Text="{Binding ElementName=sliderQuality, Path=Value, StringFormat='Качество изображений: {0:N0}%'}" Margin="2"  DockPanel.Dock="Top"/>
         <Slider x:Name="sliderQuality" Value="{Binding SelectedQuality}" Minimum="25" Maximum="100" Height="20"   DockPanel.Dock="Top"/>
-        <StackPanel Orientation="Horizontal"  DockPanel.Dock="Top">
-            <StackPanel.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="Margin" Value="4 2 4 2"/>
-                    <Setter Property="Padding" Value="10,5"/>
-                </Style>
-                <Style TargetType="TextBox">
-                    <Setter Property="Margin" Value="4 2 4 2"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                </Style>
-            </StackPanel.Resources>
+        <GroupBox Header="Операции над изображениями" DockPanel.Dock="Top" Padding="2 8 2 8">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="Margin" Value="4 2 4 2"/>
+                        <Setter Property="Padding" Value="10,5"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Margin" Value="4 2 4 2"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="RadioButton">
+                        <Setter Property="Margin" Value="0 4 0 4"/>
+                    </Style>
+                </StackPanel.Resources>
 
-            <Button x:Name="btnSaveAllAsJpg" 
+
+                <Button x:Name="btnSaveAllAsJpg" 
                     Content="Преобразовать все файлы в папке в .jpg" 
                     Command="{Binding ConvertImagesCommand}"/>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <Button x:Name="btnCompressAll" Grid.ColumnSpan="2"
+                    <Button x:Name="btnCompressAll" Grid.ColumnSpan="2"
                     Command="{Binding CompressImagesCommand}"
                     Content="Сжать все файлы в папке"  />
-                <Label Grid.Row="1" Grid.Column="0" FontSize="10">Мин. размер в кб</Label>
-                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" ></TextBox>
-            </Grid>
+                    <Label Grid.Row="1" Grid.Column="0" FontSize="10">Мин. размер в кб</Label>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" ></TextBox>
+                </Grid>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <Button x:Name="btnResizeAll" Grid.Row="0" Grid.ColumnSpan="2" Content="Изменить размер до ш*в" 
+                    <Button x:Name="btnResizeAll" Grid.Row="0" Grid.ColumnSpan="2" Content="Изменить размер до ш*в" 
                         Command="{Binding ResizeImagesCommand}"/>
-                <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtResizeWidth" Text="{Binding ResizeWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtResizeHeight" Text="{Binding ResizeHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            </Grid>
-        </StackPanel>
+                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtResizeWidth" Text="{Binding ResizeWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtResizeHeight" Text="{Binding ResizeHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </Grid>
+
+            </StackPanel>
+        </GroupBox>
         <StackPanel DockPanel.Dock="Top" DataContext="{Binding ProgressStatus}">
             <TextBlock>
                 <TextBlock.Text>
@@ -82,9 +90,11 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <ProgressBar x:Name="compressProgress" Value="{Binding ProgressStatus.Percent}" Height="24" Margin="2" Maximum="1"/>
+            <ProgressBar x:Name="compressProgress" 
+                         Visibility="{Binding ProgressStatus.Current, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}"
+                         Value="{Binding ProgressStatus.Percent}" Height="24" Margin="2" Maximum="1"/>
         </StackPanel>
-        <Grid  DockPanel.Dock="Top">
+        <Grid  DockPanel.Dock="Top" Visibility="{Binding Log.Count, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>

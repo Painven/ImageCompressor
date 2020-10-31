@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ImageCompressoLib
+namespace ImageCompressor
 {
     public class ProgressStatus
     {

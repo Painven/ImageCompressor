@@ -27,8 +27,8 @@ namespace ImageCompressor.ViewModels
 
         int _minimumSizeToCompressInKb = 400;
         public int MinimumSizeToCompressInKb { get => _minimumSizeToCompressInKb; set => Set(ref _minimumSizeToCompressInKb, value); }
-        
-        private ProgressStatus _progressStatus;
+
+        private ProgressStatus _progressStatus = new ProgressStatus(0, 0);
         public ProgressStatus ProgressStatus { get => _progressStatus; set => Set(ref _progressStatus, value); }
 
         string _workingFolder = DriveInfo.GetDrives().First().Name;
@@ -43,7 +43,7 @@ namespace ImageCompressor.ViewModels
             }
         }
 
-        private IProgress<ProgressStatus> indicator;
+        private IProgress<Tuple<int, int>> indicator;
 
         public ICommand CopyErrorsTextCommand { get; }
         public ICommand ResizeImagesCommand { get; }
@@ -56,7 +56,7 @@ namespace ImageCompressor.ViewModels
             compressor = new ImageMultiCompressor();
             compressor.OnError += (error) => Log.Add(error);
 
-            indicator = new Progress<ProgressStatus>(v => ProgressStatus = v);
+            indicator = new Progress<Tuple<int, int>>((v) => ProgressStatus = new ProgressStatus(v.Item1, v.Item2));
 
             CopyErrorsTextCommand = new LambdaCommand((param) => Clipboard.SetText(string.Join(Environment.NewLine, Log)), (p) => Log.Count > 0);
             ResizeImagesCommand = new LambdaCommand(ResizeImages, (p) => WorkingFolderExists && ResizeHeight > 0 && ResizeWidth > 0);

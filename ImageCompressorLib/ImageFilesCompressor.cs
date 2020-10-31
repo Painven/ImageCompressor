@@ -1,10 +1,8 @@
-﻿using ImageCompressoLib;
-using ImageProcessor;
+﻿using ImageProcessor;
 using ImageProcessor.Imaging;
 using ImageProcessor.Imaging.Formats;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -40,7 +38,7 @@ namespace ImageCompressorLib
 
         }
 
-        public async Task CompressImages(IEnumerable<string> images, long qualityLevel, IProgress<ProgressStatus> indicator)
+        public async Task CompressImages(IEnumerable<string> images, long qualityLevel, IProgress<Tuple<int, int>> indicator)
         {
             int total = images.Count();
             int current = 0;
@@ -58,13 +56,13 @@ namespace ImageCompressorLib
                         OnError?.Invoke(ex.Message + $" ({image})");
                     }
                 }
-                indicator?.Report(new ProgressStatus(++current, total));
+                indicator?.Report(new Tuple<int, int>(++current, total));
             }
         }
         #endregion
 
         #region SaveAsJpg
-        public async Task SaveAllAsJpg(List<string> images, long qualityLevel, IProgress<ProgressStatus> indicator)
+        public async Task SaveAllAsJpg(List<string> images, long qualityLevel, IProgress<Tuple<int, int>> indicator)
         {
             images = images.Where(img => Path.GetExtension(img).ToLower() != ".jpg").ToList();
             int total = images.Count;
@@ -80,7 +78,7 @@ namespace ImageCompressorLib
                 {
                     OnError?.Invoke(ex.Message + $" ({file})");
                 }
-                indicator?.Report(new ProgressStatus(++current, total));
+                indicator?.Report(new Tuple<int, int>(++current, total));
             }
         }
 
@@ -104,7 +102,7 @@ namespace ImageCompressorLib
         #endregion
 
         #region Resize
-        public async Task ResizeImages(IEnumerable<string> images, Size newSize, IProgress<ProgressStatus> indicator)
+        public async Task ResizeImages(IEnumerable<string> images, Size newSize, IProgress<Tuple<int, int>> indicator)
         {
             int total = images.Count();
             int current = 0;
@@ -119,7 +117,7 @@ namespace ImageCompressorLib
                 {
                     OnError?.Invoke(ex.Message + $" ({image})");
                 }
-                indicator?.Report(new ProgressStatus(++current, total));
+                indicator?.Report(new Tuple<int, int>(++current, total));
             }
         }
 
@@ -157,8 +155,7 @@ namespace ImageCompressorLib
             }
         }
         #endregion
-        
-        
+               
         private ImageCodecInfo GetEncoder(string fileExt)
         {
             ImageFormat format = null;
