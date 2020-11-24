@@ -90,9 +90,8 @@
                     </MultiBinding>
                 </TextBlock.Text>
             </TextBlock>
-            <ProgressBar x:Name="compressProgress" 
-                         Visibility="{Binding ProgressStatus.Current, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}"
-                         Value="{Binding ProgressStatus.Percent}" Height="24" Margin="2" Maximum="1"/>
+            <ProgressBar x:Name="compressProgress"                         
+                         Value="{Binding Percent, Mode=OneWay}" Height="24" Margin="2" Maximum="1" Minimum="0"/>
         </StackPanel>
         <Grid  DockPanel.Dock="Top" Visibility="{Binding Log.Count, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
             <Grid.RowDefinitions>

@@ -125,25 +125,14 @@ namespace ImageCompressorLib
         {
             ResizeLayer resizeLayer = new ResizeLayer(newSize, ResizeMode.Pad);
 
-            string newDirectory = Path.Combine(new DirectoryInfo(image).Parent.Parent.FullName, $"resized_{newSize.Width}_{newSize.Height}");
-            string newPath = Path.Combine(newDirectory, Path.GetFileName(image));
-            
-            if(File.Exists(newPath))
-            {
-                return;
-            }
-
-            if (!Directory.Exists(newDirectory))
-            {
-                Directory.CreateDirectory(newDirectory);
-            }
+            var tempFile = Path.GetTempFileName();
 
             using (var fs = new FileStream(image, FileMode.Open, FileAccess.Read))
             {
                 using (ImageFactory imageFactory = new ImageFactory(false))
                 {
                     // Load, resize, set the format and quality and save an image.
-                    using (var newFile = new FileStream(newPath, FileMode.Create))
+                    using (var newFile = new FileStream(tempFile, FileMode.Create))
                     {
                             imageFactory
                             .Load(fs)
@@ -153,6 +142,9 @@ namespace ImageCompressorLib
                     }
                 }
             }
+
+            File.Delete(image);
+            File.Move(tempFile, image);
         }
         #endregion
                

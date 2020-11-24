@@ -1,11 +1,9 @@
-﻿using ImageCompressoLib;
-using ImageCompressor.Commands;
+﻿using ImageCompressor.Commands;
 using ImageCompressorLib;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -31,7 +29,7 @@ namespace ImageCompressor.ViewModels
         private ProgressStatus _progressStatus = new ProgressStatus(0, 0);
         public ProgressStatus ProgressStatus { get => _progressStatus; set => Set(ref _progressStatus, value); }
 
-        string _workingFolder = DriveInfo.GetDrives().First().Name;
+        string _workingFolder = "";
         public string WorkingFolder { get => _workingFolder; set  { Set(ref _workingFolder, value); RaisePropertyChanged(nameof(WorkingFolderExists)); } }
 
 
@@ -54,7 +52,7 @@ namespace ImageCompressor.ViewModels
         {
             Log = new ObservableCollection<string>();
             compressor = new ImageMultiCompressor();
-            compressor.OnError += (error) => Log.Add(error);
+            compressor.OnError += (error) => App.Current.Dispatcher.Invoke(() => Log.Add(error));
 
             indicator = new Progress<Tuple<int, int>>((v) => ProgressStatus = new ProgressStatus(v.Item1, v.Item2));
 
