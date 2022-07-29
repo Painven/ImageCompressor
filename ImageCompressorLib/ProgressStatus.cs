@@ -1,12 +1,14 @@
 ﻿using System;
 
-namespace ImageCompressor
+namespace ImageCompressorLib
 {
-    public class ProgressStatus
+    public struct ProgressStatus
     {
-        public int Current { get; } = 0;
-        public int Total { get; } = 0;
+        public int Current { get; private set; }
+        public int Total { get; private set; }
+
         public int Left => Math.Max(Total - Current, 0);
+
         public double Percent
         {
             get

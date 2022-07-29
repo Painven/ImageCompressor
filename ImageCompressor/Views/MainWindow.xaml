@@ -3,108 +3,178 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:v="clr-namespace:ImageCompressor.ViewModels"
-        xmlns:con="clr-namespace:ImageCompressor.Converters"
+        xmlns:vm="clr-namespace:ImageCompressor.ViewModels"
+        xmlns:icons="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="Обработчик изображений" Height="257" Width="891">
-    <Window.Resources>
-        <con:GreaterThanZeroToVisibilityConverter x:Key="GreaterThanZeroToVisibilityConverter"/>
-    </Window.Resources>
-    <Window.DataContext>
-        <v:MainWindowViewModel/>
-    </Window.DataContext>
-    <DockPanel Margin="4">
+        MinWidth="600"
+        Background="{StaticResource MainWindowBackground}"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        SizeToContent="WidthAndHeight"
         
-        <TextBlock Text="Рабочая папка" Margin="2" DockPanel.Dock="Top"/>
-        <TextBox x:Name="txtFilesFolder" 
-                 Text="{Binding WorkingFolder}"
-                 Margin="2" 
-                 BorderBrush="Black"  
-                 DockPanel.Dock="Top"/>
-        <TextBlock Text="{Binding ElementName=sliderQuality, Path=Value, StringFormat='Качество изображений: {0:N0}%'}" Margin="2"  DockPanel.Dock="Top"/>
-        <Slider x:Name="sliderQuality" Value="{Binding SelectedQuality}" Minimum="25" Maximum="100" Height="20"   DockPanel.Dock="Top"/>
-        <GroupBox Header="Операции над изображениями" DockPanel.Dock="Top" Padding="2 8 2 8">
-            <StackPanel Orientation="Horizontal">
-                <StackPanel.Resources>
-                    <Style TargetType="Button">
-                        <Setter Property="Margin" Value="4 2 4 2"/>
-                        <Setter Property="Padding" Value="10,5"/>
-                    </Style>
-                    <Style TargetType="TextBox">
-                        <Setter Property="Margin" Value="4 2 4 2"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                        <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    </Style>
-                    <Style TargetType="RadioButton">
-                        <Setter Property="Margin" Value="0 4 0 4"/>
-                    </Style>
-                </StackPanel.Resources>
+        Title="{Binding Title}" Height="553" Width="700">
+
+    <Grid Margin="4">
+        <Grid.Background>
+            <SolidColorBrush Color="#A4E483" Opacity="0.5"/>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Рабочая папка" Foreground="#588FBB"
+                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+
+            <TextBox x:Name="txtFilesFolder" 
+                     Grid.Row="1" Grid.Column="0"
+                     Text="{Binding WorkingFolder}"
+                     Margin="0 8 0 8" 
+                     Width="Auto"
+                     HorizontalContentAlignment="Left"
+                     Height="22"
+                     FontSize="14"
+                     d:Text="C:\\Windows\Users\user\desktop"
+                     Foreground="#7A6565"
+                     BorderBrush="LightGray"/>
+
+            <Button Grid.Column="1" Grid.Row="1" Command="{Binding SelectImagesFolderCommand}" Style="{StaticResource ImageButtonStyle}">
+                <icons:PackIconFontAwesome Kind="FolderOpenRegular" Style="{StaticResource MediumIconSize}" />
+            </Button>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="valuesColumn"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" 
+                            Command="{Binding ConvertImagesCommand}"
+                            Style="{StaticResource ImageButtonStyle}">
+                        <icons:PackIconFontAwesome Kind="ImagesSolid" Style="{StaticResource BigIconSize}" />
+                    </Button>
+                    <Label Grid.Column="1" Content="Преобразование .png и .gif в .jpg" />
+
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Style="{StaticResource SectionBorderStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" SharedSizeGroup="valuesColumn"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                            Style="{StaticResource ImageButtonStyle}"
+                            Command="{Binding CompressImagesCommand}">
+                        <icons:PackIconFontAwesome Kind="FileArchiveSolid" Style="{StaticResource BigIconSize}" />
+                    </Button>
+
+                    <Label Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Content="Сжатие изображений"/>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" 
+                               HorizontalAlignment="Right"
+                               Text="Мин. размер для сжатия, КБ"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2"
+                               HorizontalAlignment="Right"
+                               Text="{Binding CompressParameters.SelectedQuality, StringFormat='Качество сжатия: {0:N0}%'}" Margin="2"  DockPanel.Dock="Top"/>
+
+                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding CompressParameters.MinimumSizeToCompressInKb}"></TextBox>
+                    <Slider Grid.Row="1" Grid.Column="3" Value="{Binding CompressParameters.SelectedQuality}" Minimum="50" Maximum="100" Height="20" />
 
 
-                <Button x:Name="btnSaveAllAsJpg" 
-                    Content="Преобразовать все файлы в папке в .jpg" 
-                    Command="{Binding ConvertImagesCommand}"/>
+
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource SectionBorderStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" SharedSizeGroup="valuesColumn"/>
                     </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Command="{Binding ResizeImagesCommand}" 
+                            Style="{StaticResource ImageButtonStyle}">
+                        <icons:PackIconFontAwesome Kind="CompressArrowsAltSolid" Style="{StaticResource BigIconSize}"/>
+                    </Button>
 
-                    <Button x:Name="btnCompressAll" Grid.ColumnSpan="2"
-                    Command="{Binding CompressImagesCommand}"
-                    Content="Сжать все файлы в папке"  />
-                    <Label Grid.Row="1" Grid.Column="0" FontSize="10">Мин. размер в кб</Label>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MinimumSizeToCompressInKb}" ></TextBox>
+                    <Label Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Content="Изменить разрешение" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Ширина" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Высота" HorizontalAlignment="Right" />
+
+                    <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding CompressParameters.ResizeWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding CompressParameters.ResizeHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+
+
+
                 </Grid>
+            </Border>
 
+            <Border Grid.Row="3" Style="{StaticResource SectionBorderStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" SharedSizeGroup="valuesColumn"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="btnResizeAll" Grid.Row="0" Grid.ColumnSpan="2" Content="Изменить размер до ш*в" 
-                        Command="{Binding ResizeImagesCommand}"/>
-                    <TextBox Grid.Row="1" Grid.Column="0" x:Name="txtResizeWidth" Text="{Binding ResizeWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="txtResizeHeight" Text="{Binding ResizeHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                </Grid>
+                    <Button Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" 
+                            Command="{Binding EraseWatermarksCommand}" 
+                            Style="{StaticResource ImageButtonStyle}"
+                            ToolTip="Закрашивает прямоугольник указанного размера в **правом нижнем углу** каждого изображения">
+                        <icons:PackIconFontAwesome Kind="StampSolid" Style="{StaticResource BigIconSize}"/>
+                    </Button>
 
-            </StackPanel>
-        </GroupBox>
-        <StackPanel DockPanel.Dock="Top" DataContext="{Binding ProgressStatus}">
-            <TextBlock>
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}Обработано {0} из {1} ({2:P0}). Осталось {3}">
-                        <Binding Path="Current" />
-                        <Binding Path="Total" />
-                        <Binding Path="Percent" />
-                        <Binding Path="Left" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
-            <ProgressBar x:Name="compressProgress"                         
-                         Value="{Binding Percent, Mode=OneWay}" Height="24" Margin="2" Maximum="1" Minimum="0"/>
-        </StackPanel>
-        <Grid  DockPanel.Dock="Top" Visibility="{Binding Log.Count, Converter={StaticResource GreaterThanZeroToVisibilityConverter}}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Grid.Column="0" Content="Информация"></Label>
-            <Button Grid.Row="0" Grid.Column="1" Content="Скопировать" Command="{Binding CopyErrorsTextCommand}" DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="2" Padding="4"/>
-            <ListBox Grid.Row="1" Grid.ColumnSpan="2" x:Name="lstBoxErrors" ItemsSource="{Binding Log}" Margin="2"/>
+                    <Label Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">Закрасить водяные знаки</Label>
+
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Ширина" HorizontalAlignment="Right" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Высота" HorizontalAlignment="Right" />
+
+                    <TextBox Grid.Row="0" Grid.Column="3" 
+                             Text="{Binding CompressParameters.WatermarkWidth, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBox Grid.Row="1" Grid.Column="3" 
+                             Text="{Binding CompressParameters.WatermarkHeight, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+
+
+                </Grid>
+            </Border>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Window>

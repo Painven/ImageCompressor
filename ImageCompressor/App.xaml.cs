@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ImageCompressor.ViewModels;
+using ImageCompressorLib;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -13,5 +15,14 @@ namespace ImageCompressor
     /// </summary>
     public partial class App : Application
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            var compressor = new ImageMultiCompressor();
+            var watermarkEraser = new ImageWatermarkEraser();
+
+            var window = new MainWindow();
+            window.DataContext = new MainWindowViewModel(compressor, watermarkEraser);
+            window.Show();
+        }
     }
 }

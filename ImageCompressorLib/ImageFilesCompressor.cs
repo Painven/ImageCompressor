@@ -16,6 +16,32 @@ namespace ImageCompressorLib
         public event Action<string> OnError;
 
         #region Compress
+        public async Task CompressImages(string workingFolder, long qualityLevel, int minimumSizeInKb, IProgress<ProgressStatus> indicator)
+        {
+            var images = Directory.GetFiles(workingFolder, "*.*", SearchOption.AllDirectories)
+                .Select(file => new FileInfo(file))
+                .Where(file => file.Length >= minimumSizeInKb * 1000)
+                .Where(file => new string[] { ".jpg", ".jpeg" }.Contains(file.Extension.ToLower()))
+                .Select(fi => fi.FullName)
+                .ToList();
+
+            int total = images.Count();
+            int current = 0;
+
+            foreach (var image in images)
+            {
+                try
+                {
+                    await Task.Run(() => CompressImage(image, qualityLevel)).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    OnError?.Invoke(ex.Message + $" ({image})");
+                }
+                indicator?.Report(new ProgressStatus(++current, total));
+            }
+        }
+
         public void CompressImage(string imageFilePath, long qualityLevel)
         {
            
@@ -38,34 +64,17 @@ namespace ImageCompressorLib
 
         }
 
-        public async Task CompressImages(IEnumerable<string> images, long qualityLevel, IProgress<Tuple<int, int>> indicator)
-        {
-            int total = images.Count();
-            int current = 0;
-
-            foreach (var image in images)
-            {
-                if (!image.ToLower().EndsWith(".png"))
-                {
-                    try
-                    {
-                        await Task.Run(() => CompressImage(image, qualityLevel)).ConfigureAwait(false);
-                    }
-                    catch(Exception ex)
-                    {
-                        OnError?.Invoke(ex.Message + $" ({image})");
-                    }
-                }
-                indicator?.Report(new Tuple<int, int>(++current, total));
-            }
-        }
         #endregion
 
         #region SaveAsJpg
-        public async Task SaveAllAsJpg(List<string> images, long qualityLevel, IProgress<Tuple<int, int>> indicator)
+        public async Task SaveAllAsJpg(string workingFolder, long qualityLevel, IProgress<ProgressStatus> indicator)
         {
-            images = images.Where(img => Path.GetExtension(img).ToLower() != ".jpg").ToList();
-            int total = images.Count;
+            var images = Directory
+                .GetFiles(workingFolder, "*.*", SearchOption.AllDirectories)
+                .Where(img => Path.GetExtension(img).ToLower() != ".jpg")
+                .ToArray();
+
+            int total = images.Length;
             int current = 0;
 
             foreach (var file in images)
@@ -78,7 +87,7 @@ namespace ImageCompressorLib
                 {
                     OnError?.Invoke(ex.Message + $" ({file})");
                 }
-                indicator?.Report(new Tuple<int, int>(++current, total));
+                indicator?.Report(new ProgressStatus(++current, total));
             }
         }
 
@@ -94,7 +103,7 @@ namespace ImageCompressorLib
                     // Load, resize, set the format and quality and save an image.
                     using (var newFile = new FileStream(newPath, FileMode.Create))
                     {
-                        imageFactory.Load(fs).Format(format).Save(newFile);
+                        imageFactory.Load(fs).BackgroundColor(Color.White).Format(format).Save(newFile);
                     }
                 }
             }
@@ -102,8 +111,10 @@ namespace ImageCompressorLib
         #endregion
 
         #region Resize
-        public async Task ResizeImages(IEnumerable<string> images, Size newSize, IProgress<Tuple<int, int>> indicator)
+        public async Task ResizeImages(string workingFolder, Size newSize, IProgress<ProgressStatus> indicator)
         {
+            var images = Directory.GetFiles(workingFolder, "*.*", SearchOption.AllDirectories).ToArray();
+
             int total = images.Count();
             int current = 0;
 
@@ -117,7 +128,7 @@ namespace ImageCompressorLib
                 {
                     OnError?.Invoke(ex.Message + $" ({image})");
                 }
-                indicator?.Report(new Tuple<int, int>(++current, total));
+                indicator?.Report(new ProgressStatus(++current, total));
             }
         }
 
