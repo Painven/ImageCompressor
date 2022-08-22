@@ -14,7 +14,9 @@ namespace ImageCompressor.ViewModels
     {
         readonly ImageMultiCompressor compressor;
         readonly ImageWatermarkEraser watermarkEraser;
-        
+        readonly SettingsManager<UserSettings> settingsManager;
+        readonly UserSettings settings;
+
         public ObservableCollection<string> Log { get; }
 
         string title = "Обработчик изображений";
@@ -47,7 +49,9 @@ namespace ImageCompressor.ViewModels
             set  
             {
                 if (Set(ref _workingFolder, value))
-                {
+                {                    
+                    settings.WorkingFolder = value;
+                    settingsManager.SaveSettings(settings);
                     RaisePropertyChanged(nameof(WorkingFolderExists));
                 }
             } 
@@ -81,11 +85,13 @@ namespace ImageCompressor.ViewModels
             EraseWatermarksCommand = new LambdaCommand(EraseWatermakrs, (p) => WorkingFolderExists);
         }
 
-        public MainWindowViewModel(ImageMultiCompressor compressor, ImageWatermarkEraser watermarkEraser) : this()
+        public MainWindowViewModel(ImageMultiCompressor compressor, ImageWatermarkEraser watermarkEraser, SettingsManager<UserSettings> settingsManager) : this()
         {
             this.compressor = compressor;
             this.watermarkEraser = watermarkEraser;
-
+            this.settingsManager = settingsManager;
+            settings = settingsManager.LoadSettings();
+            _workingFolder = settings.WorkingFolder;
             compressor.OnError += (error) => App.Current.Dispatcher.Invoke(() => Log.Add(error));
         }
 
@@ -123,7 +129,7 @@ namespace ImageCompressor.ViewModels
             {
                 InProgress = true;
               
-                await compressor.SaveAllAsJpg(WorkingFolder, CompressParameters.SelectedQuality, CreateIndicatorCallback());
+                await compressor.SaveAllAsJpg(WorkingFolder, CompressParameters.IsDeleteFilesAfterCompress, CreateIndicatorCallback());
 
                 MessageBox.Show($"Конвертация в JPG выполнена", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
             }

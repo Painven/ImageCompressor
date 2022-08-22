@@ -45,5 +45,12 @@
             set => Set(ref _minimumSizeToCompressInKb, value);
         }
 
+        bool isDeleteFilesAfterCompress;
+        public bool IsDeleteFilesAfterCompress
+        {
+            get => isDeleteFilesAfterCompress;
+            set => Set(ref isDeleteFilesAfterCompress, value);
+        }
+
     }
 }

@@ -18,12 +18,14 @@ namespace ImageCompressorLib
         #region Compress
         public async Task CompressImages(string workingFolder, long qualityLevel, int minimumSizeInKb, IProgress<ProgressStatus> indicator)
         {
-            var images = Directory.GetFiles(workingFolder, "*.*", SearchOption.AllDirectories)
+            string[] valid_extensions = new string[2] { ".jpg", ".jpeg" };
+
+            var images = Directory.GetFiles(workingFolder)
                 .Select(file => new FileInfo(file))
+                .Where(file => valid_extensions.Contains(file.Extension))
                 .Where(file => file.Length >= minimumSizeInKb * 1000)
-                .Where(file => new string[] { ".jpg", ".jpeg" }.Contains(file.Extension.ToLower()))
                 .Select(fi => fi.FullName)
-                .ToList();
+                .ToArray();
 
             int total = images.Count();
             int current = 0;
@@ -66,8 +68,8 @@ namespace ImageCompressorLib
 
         #endregion
 
-        #region SaveAsJpg
-        public async Task SaveAllAsJpg(string workingFolder, long qualityLevel, IProgress<ProgressStatus> indicator)
+        #region ConvertToJpg
+        public async Task SaveAllAsJpg(string workingFolder, bool removeOriginalFiles, IProgress<ProgressStatus> indicator)
         {
             var images = Directory
                 .GetFiles(workingFolder, "*.*", SearchOption.AllDirectories)
@@ -79,9 +81,19 @@ namespace ImageCompressorLib
 
             foreach (var file in images)
             {
+                string ext = Path.GetExtension(file).ToLower();
+
                 try
                 {
-                    await Task.Run(() => SaveFileAsJpg(file, (int)qualityLevel)).ConfigureAwait(false) ;
+                    // Если jpeg то просто переименовываем
+                    if (ext.Equals(".jpg"))
+                    {
+                        File.Move(file, file.Replace(".jpeg", ".jpg"));
+                    }
+                    else if(new string[] { ".png", ".gif" }.Contains(ext))
+                    {
+                        await Task.Run(() => ConvertToJpg(file, removeOriginalFiles)).ConfigureAwait(false);
+                    }
                 }
                 catch(Exception ex)
                 {
@@ -91,21 +103,26 @@ namespace ImageCompressorLib
             }
         }
 
-        private void SaveFileAsJpg(string webpFile, int qualityLevel)
+        private void ConvertToJpg(string sourceFile, bool removeOriginalFiles)
         {
-            var format = new JpegFormat { Quality = 100 };
-            string newPath = Path.Combine(Path.GetDirectoryName(webpFile), Path.GetFileNameWithoutExtension(webpFile)) + ".jpg";
+            string newPath = Path.Combine(Path.GetDirectoryName(sourceFile), Path.GetFileNameWithoutExtension(sourceFile)) + ".jpg";
 
-            using (var fs = new FileStream(webpFile, FileMode.Open, FileAccess.Read))
+            bool isSuccessSave = false;
+            using (var fs = new FileStream(sourceFile, FileMode.Open, FileAccess.Read))
+            using (ImageFactory imageFactory = new ImageFactory(preserveExifData: true))
             {
-                using (ImageFactory imageFactory = new ImageFactory(preserveExifData: true))
+                // Load, resize, set the format and quality and save an image.
+                using (var newFile = new FileStream(newPath, FileMode.Create))
                 {
-                    // Load, resize, set the format and quality and save an image.
-                    using (var newFile = new FileStream(newPath, FileMode.Create))
-                    {
-                        imageFactory.Load(fs).BackgroundColor(Color.White).Format(format).Save(newFile);
-                    }
+                    var format = new JpegFormat { Quality = 100 };
+                    imageFactory.Load(fs).BackgroundColor(Color.White).Format(format).Save(newFile);
+                    isSuccessSave = true;
                 }
+            }
+
+            if (removeOriginalFiles && isSuccessSave)
+            {
+                File.Delete(sourceFile);
             }
         }
         #endregion

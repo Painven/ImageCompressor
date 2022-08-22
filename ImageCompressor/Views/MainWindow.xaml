@@ -64,15 +64,28 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="Auto" SharedSizeGroup="valuesColumn"/>
                     </Grid.ColumnDefinitions>
+                    
                     <Button Grid.Column="0" 
                             Command="{Binding ConvertImagesCommand}"
                             Style="{StaticResource ImageButtonStyle}">
                         <icons:PackIconFontAwesome Kind="ImagesSolid" Style="{StaticResource BigIconSize}" />
                     </Button>
-                    <Label Grid.Column="1" Content="Преобразование .png и .gif в .jpg" />
+                    <Label Grid.Column="1" Content="Преобразование .png и .gif в .jpg" HorizontalAlignment="Left"  />
 
+                    <TextBlock Text="Удалять оригиналы" Grid.Column="2"/>
+                    <CheckBox IsChecked="{Binding CompressParameters.IsDeleteFilesAfterCompress}" 
+                              Grid.Column="3"
+                              HorizontalAlignment="Center"
+                              BorderBrush="LightGray"
+                              VerticalAlignment="Center">
+                        <CheckBox.LayoutTransform>
+                            <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                        </CheckBox.LayoutTransform>
+                    </CheckBox>
                 </Grid>
             </Border>
 

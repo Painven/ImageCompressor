@@ -22,5 +22,14 @@ namespace ImageCompressor.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        public string last_selected_folder {
+            get {
+                return ((string)(this["last_selected_folder"]));
+            }
+        }
     }
 }
